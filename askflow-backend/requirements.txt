@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+sqlalchemy
+psycopg2-binary
+asyncpg
+pgvector
+pydantic
+pydantic-settings
+python-dotenv
+openai
+pdfplumber             # For text + coordinates extraction
+langchain-text-splitters # Smart chunking
+tiktoken               # Token counting for chunking
+python-multipart
