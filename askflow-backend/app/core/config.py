@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     AZURE_OPENAI_ENDPOINT: Optional[str] = None
     AZURE_OPENAI_API_VERSION: Optional[str] = "2023-05-15"
     AZURE_EMBEDDING_DEPLOYMENT_NAME: Optional[str] = None
+    AZURE_CHAT_DEPLOYMENT_NAME: Optional[str] = None
+    
+    OPENAI_MODEL_NAME: str = "gpt-3.5-turbo"
     
     # Computed Database URL
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None

@@ -14,10 +14,27 @@ class VectorService:
             )
             # In Azure, the "model" parameter in client calls is usually the deployment name
             self.embedding_model_name = settings.AZURE_EMBEDDING_DEPLOYMENT_NAME
+            self.chat_model_name = settings.AZURE_CHAT_DEPLOYMENT_NAME
         else:
             # Default to Standard OpenAI
             self.client = AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
             self.embedding_model_name = "text-embedding-3-small"
+            self.chat_model_name = settings.OPENAI_MODEL_NAME
+
+    async def generate_answer(self, messages: List[dict]) -> str:
+        """
+        Generates a chat completion.
+        """
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.chat_model_name,
+                messages=messages,
+                temperature=0.2
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            print(f"Error generating answer with {self.provider}: {e}")
+            raise e
 
     async def generate_embedding(self, text: str) -> List[float]:
         """

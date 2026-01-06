@@ -69,3 +69,27 @@ async def upload_document(
         # if os.path.exists(file_path):
         #    os.remove(file_path)
         raise HTTPException(status_code=500, detail=str(e))
+
+from fastapi.responses import FileResponse
+from sqlalchemy import select
+
+@router.get("/{document_id}/pdf")
+async def get_document_pdf(
+    document_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    # Fetch document from DB
+    result = await db.execute(select(Document).where(Document.id == document_id))
+    document = result.scalar_one_or_none()
+    
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found")
+        
+    if not os.path.exists(document.file_path):
+        raise HTTPException(status_code=404, detail="File not found on server")
+        
+    return FileResponse(
+        document.file_path, 
+        media_type="application/pdf", 
+        filename=document.filename
+    )
