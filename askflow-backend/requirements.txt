@@ -12,3 +12,5 @@ pdfplumber             # For text + coordinates extraction
 langchain-text-splitters # Smart chunking
 tiktoken               # Token counting for chunking
 python-multipart
+alembic                # DB migrations
+arq                    # Background job queue (Redis-backed, asyncio-native)

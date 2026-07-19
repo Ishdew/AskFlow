@@ -13,5 +13,13 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:7-alpine  # Broker/result store for Arq background jobs
+    container_name: askflow_redis
+    ports:
+      - "6380:6379"
+    # No volume: only transient job/result state, nothing worth persisting -
+    # a lost job just means re-uploading that PDF.
+
 volumes:
   postgres_data:
