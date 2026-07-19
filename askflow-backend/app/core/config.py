@@ -20,14 +20,23 @@ class Settings(BaseSettings):
     OPENAI_API_KEY: Optional[str] = None
     
     # Azure OpenAI
-    AZURE_OPENAI_API_KEY: Optional[str] = None
-    AZURE_OPENAI_ENDPOINT: Optional[str] = None
-    AZURE_OPENAI_API_VERSION: Optional[str] = "2023-05-15"
+    # Azure OpenAI - Embeddings
+    AZURE_OPENAI_EMBEDDING_API_KEY: Optional[str] = None
+    AZURE_OPENAI_EMBEDDING_ENDPOINT: Optional[str] = None
+    AZURE_OPENAI_EMBEDDING_API_VERSION: Optional[str] = "2023-05-15"
     AZURE_EMBEDDING_DEPLOYMENT_NAME: Optional[str] = None
+
+    # Azure OpenAI - Chat (New Instance)
+    AZURE_OPENAI_CHAT_API_KEY: Optional[str] = None
+    AZURE_OPENAI_CHAT_ENDPOINT: Optional[str] = None
+    AZURE_OPENAI_CHAT_API_VERSION: Optional[str] = "2024-06-01"
     AZURE_CHAT_DEPLOYMENT_NAME: Optional[str] = None
     
     OPENAI_MODEL_NAME: str = "gpt-3.5-turbo"
-    
+
+    # REDIS / ARQ (background job queue for PDF processing)
+    REDIS_URL: str = "redis://localhost:6380/0"
+
     # Computed Database URL
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
 

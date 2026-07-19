@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Upload, FileText, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import axios from "axios";
 import { cn } from "@/lib/utils";
+import { API_BASE_URL } from "@/lib/config";
 
 interface FileUploadProps {
     onUploadComplete: (data: any) => void;
@@ -54,7 +55,7 @@ export function FileUpload({ onUploadComplete }: FileUploadProps) {
 
         try {
             // Direct call to backend
-            const response = await axios.post("http://127.0.0.1:8000/api/v1/documents/upload", formData, {
+            const response = await axios.post(`${API_BASE_URL}/documents/upload`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -106,7 +107,7 @@ export function FileUpload({ onUploadComplete }: FileUploadProps) {
                                     <FileText className="w-6 h-6 text-muted-foreground" />
                                 </div>
                             </div>
-                            <p className="text-sm font-medium animate-pulse">Processing Document...</p>
+                            <p className="text-sm font-medium animate-pulse">Uploading...</p>
                         </motion.div>
                     ) : (
                         <motion.div

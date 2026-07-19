@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
+import type { PageCallback } from "react-pdf/dist/shared/types.js";
 import { ChevronLeft, ChevronRight, ZoomIn, ZoomOut, RotateCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+import { ActiveCitation } from "@/lib/types";
 
 import 'react-pdf/dist/Page/AnnotationLayer.css';
 import 'react-pdf/dist/Page/TextLayer.css';
@@ -14,17 +16,34 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/b
 
 interface PdfViewerProps {
     url: string;
+    activeCitation?: ActiveCitation | null;
 }
 
-export function PdfViewer({ url }: PdfViewerProps) {
+export function PdfViewer({ url, activeCitation }: PdfViewerProps) {
     const [numPages, setNumPages] = useState<number>(0);
     const [pageNumber, setPageNumber] = useState<number>(1);
     const [scale, setScale] = useState<number>(1.0);
     const [rotation, setRotation] = useState<number>(0);
+    const [renderedSize, setRenderedSize] = useState<{ width: number; height: number } | null>(null);
+    const [syncedCitation, setSyncedCitation] = useState<ActiveCitation | null | undefined>(undefined);
+
+    // Jump to the cited page whenever a new citation is clicked in the chat.
+    // Adjusted during render (not in an effect) per React's guidance for syncing
+    // state to a prop change - avoids an extra commit/re-render round-trip.
+    if (activeCitation && activeCitation !== syncedCitation) {
+        setSyncedCitation(activeCitation);
+        setPageNumber(activeCitation.page);
+    }
 
     function onDocumentLoadSuccess({ numPages }: { numPages: number }) {
         setNumPages(numPages);
     }
+
+    function onPageRenderSuccess(page: PageCallback) {
+        setRenderedSize({ width: page.width, height: page.height });
+    }
+
+    const showHighlight = activeCitation?.page === pageNumber && !!activeCitation?.boundingBox && !!renderedSize;
 
     return (
         <div className="flex flex-col h-full bg-muted/10 w-full relative">
@@ -69,7 +88,7 @@ export function PdfViewer({ url }: PdfViewerProps) {
 
             {/* Scrollable PDF Area */}
             <div className="flex-1 overflow-auto flex justify-center p-8">
-                <div className="shadow-2xl ring-1 ring-black/5 dark:ring-white/5 bg-white">
+                <div className="relative shadow-2xl ring-1 ring-black/5 dark:ring-white/5 bg-white">
                     <Document
                         file={url}
                         onLoadSuccess={onDocumentLoadSuccess}
@@ -91,8 +110,22 @@ export function PdfViewer({ url }: PdfViewerProps) {
                             className="max-w-full"
                             renderAnnotationLayer={true}
                             renderTextLayer={true}
+                            onRenderSuccess={onPageRenderSuccess}
                         />
                     </Document>
+
+                    {showHighlight && activeCitation!.boundingBox!.map((box, i) => (
+                        <div
+                            key={i}
+                            className="absolute pointer-events-none bg-amber-300/40 ring-1 ring-amber-400/60 rounded-sm"
+                            style={{
+                                left: box.x0 * renderedSize!.width,
+                                top: box.top * renderedSize!.height,
+                                width: (box.x1 - box.x0) * renderedSize!.width,
+                                height: (box.bottom - box.top) * renderedSize!.height,
+                            }}
+                        />
+                    ))}
                 </div>
             </div>
         </div>
